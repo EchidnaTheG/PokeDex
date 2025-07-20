@@ -1,7 +1,8 @@
 package main
 
-import(
+import (
 	"testing"
+
 )
 
 func TestCleanInput(t *testing.T){
@@ -36,3 +37,13 @@ func TestCleanInput(t *testing.T){
 	} 
 
 }
+
+/**func TestGetLocation(t *testing.T){
+	cases := []struct{
+		input string
+		output string
+	}{
+
+	}
+}
+**/

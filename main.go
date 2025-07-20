@@ -39,11 +39,32 @@ func Exit() error{
 }
 // The map CliCommand that is used by the CliCommand map in the SupportedCommands map as a callback method, it used internal functions to manage the Api calls, not yet finalized	
 func Map() error{
-	internal.GetLocationData()
+	Locations, err := internal.GetLocationData(&config,false)
+	if err != nil{
+		fmt.Printf("An Exception Has Ocurred: %v\n",err)
+	}
+	for _, Location := range Locations{
+		fmt.Println(Location.Name)
+	
+	}
+	return nil
 }
 
+func Mapb() error{
+	Locations, err := internal.GetLocationData(&config,true)
+	if err != nil{
+		fmt.Printf("An Exception Has Ocurred: %v\n",err)
+	}
+	for _, Location := range Locations{
+		fmt.Println(Location.Name)
+	
+	}
+	return nil
+}
+var config= internal.Config{Next:"",Previous:""}
 //Initializing the SupportedCommands Map
 func init(){
+	
 	SupportedCommands=  make(map[string]CliCommand)
 	SupportedCommands["help"] =CliCommand{
 	name: "help",
@@ -54,6 +75,16 @@ func init(){
 		name: "exit",
 		description:"exits the program",
 		callback: Exit,
+	}
+	SupportedCommands["map"]= CliCommand{
+		name:"map",
+		description: "lists all the locations in batches of 20",
+		callback: Map,
+	}
+	SupportedCommands["mapb"]= CliCommand{
+		name:"mapb",
+		description: "lists all the locations in batches of 20, goes back 1 batch",
+		callback: Mapb,
 	}
 
 	
