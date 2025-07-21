@@ -6,9 +6,11 @@ import (
 	"os"
 	"strings"
 	"github.com/EchidnaTheG/PokeDex/internal"
+
 )
 
-
+//declaring CACHE type early
+var CACHE *internal.Cache
 
 // General Struct For All CLI Commands In The App
 type CliCommand struct{
@@ -27,7 +29,7 @@ func Help() error {
 		fmt.Println("Welcome to the Pokedex!")
 		fmt.Println("Usage:")
 		fmt.Println("\nhelp: Displays a help message")
-		fmt.Println("exit: Exit the Pokedex\n")
+		fmt.Println("exit: Exit the Pokedex")
 		return nil
 	}
 
@@ -39,7 +41,7 @@ func Exit() error{
 }
 // The map CliCommand that is used by the CliCommand map in the SupportedCommands map as a callback method, it used internal functions to manage the Api calls, not yet finalized	
 func Map() error{
-	Locations, err := internal.GetLocationData(&config,false)
+	Locations, err := internal.GetLocationData(&config,false,CACHE)
 	if err != nil{
 		fmt.Printf("An Exception Has Ocurred: %v\n",err)
 	}
@@ -51,7 +53,7 @@ func Map() error{
 }
 
 func Mapb() error{
-	Locations, err := internal.GetLocationData(&config,true)
+	Locations, err := internal.GetLocationData(&config,true,CACHE)
 	if err != nil{
 		fmt.Printf("An Exception Has Ocurred: %v\n",err)
 	}
@@ -61,10 +63,12 @@ func Mapb() error{
 	}
 	return nil
 }
-var config= internal.Config{Next:"",Previous:""}
+var config= internal.Config{Next:nil,Previous:nil}
 //Initializing the SupportedCommands Map
+
 func init(){
-	
+	CACHE = internal.NewCache(internal.INTERVAL)
+
 	SupportedCommands=  make(map[string]CliCommand)
 	SupportedCommands["help"] =CliCommand{
 	name: "help",
