@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// declaring CACHE type early
+// declaring CACHE type
 var CACHE *internal.Cache
 
 // General Struct For All CLI Commands In The App
@@ -65,25 +65,40 @@ func Mapb(_ string) error {
 
 func Explore(area string) error {
 	fmt.Printf("Exploring %v...\n", area)
-	listOfPokemon, err := internal.GetPokemonInArea(area,CACHE)
-	if err != nil{
+	listOfPokemon, err := internal.GetPokemonInArea(area, CACHE)
+	if err != nil {
 		return err
 	}
 	fmt.Printf("Found Pokemon:\n")
-	for _, data := range listOfPokemon{
-		fmt.Printf(" - %v\n",data.Pokemon.Name)
+	for _, data := range listOfPokemon {
+		fmt.Printf(" - %v\n", data.Pokemon.Name)
 	}
-	
+
 	return nil
 }
 
-var config = internal.Config{Next: nil, Previous: nil}
+func Catch(pokemon string) error {
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokemon)
+	SuccessBool, err := internal.TryStorePokemon(pokemon,&PokeDex, CACHE)
+	if SuccessBool{
+		fmt.Printf("%v was caught!\n", pokemon)
+		return nil
+	}
+	if !SuccessBool &&  err == nil{
+		fmt.Printf("%v escaped!\n", pokemon)
+		return nil
+	}
 
+	return err
+}
+
+var config = internal.Config{Next: nil, Previous: nil}
+var PokeDex []internal.Pokemon
 //Initializing the SupportedCommands Map
 
 func init() {
 	CACHE = internal.NewCache(internal.INTERVAL)
-
+	
 	SupportedCommands = make(map[string]CliCommand)
 	SupportedCommands["help"] = CliCommand{
 		name:        "help",
@@ -115,11 +130,16 @@ func init() {
 		description: "lists all the pokemon in a specific area",
 		callback:    Explore,
 	}
+	SupportedCommands["catch"] = CliCommand{
+		name:        "catch",
+		description: "attempts to catch the argument.",
+		callback:    Catch,
+	}
 }
 
 // Helper function for capturing user input
 func cleanInput(text string) []string {
-	return strings.Fields(text)
+	return strings.Fields(strings.ToLower(text))
 
 }
 
@@ -130,7 +150,7 @@ func main() {
 	for {
 		fmt.Print("Pokedex > ")
 		Scanner.Scan()
-		userInputs := cleanInput(strings.ToLower(Scanner.Text()))
+		userInputs := cleanInput(Scanner.Text())
 
 		if len(userInputs) > 0 {
 			firstValue := userInputs[0]
@@ -141,7 +161,16 @@ func main() {
 			}
 			switch firstValue {
 			case "explore":
-				if len(userInputs) <= 1{
+				if len(userInputs) <= 1 {
+					fmt.Println("Not Enough Flags Given")
+					continue
+				}
+				err := SupportedCommands[firstValue].callback(userInputs[1])
+				if err != nil {
+					fmt.Printf("Error!: %v\n", err)
+				}
+			case "catch":
+				if len(userInputs) <= 1 {
 					fmt.Println("Not Enough Flags Given")
 					continue
 				}
