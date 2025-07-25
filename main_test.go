@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func TestCleanInput(t *testing.T) {
+func TestCleanInputAndLowerCase(t *testing.T) {
 	cases := []struct {
 		input    string
 		expected []string
@@ -15,11 +15,11 @@ func TestCleanInput(t *testing.T) {
 		{input: "  hello  world  ",
 			expected: []string{"hello", "world"},
 		}, {
-			input:    "1  hello  world  ",
+			input:    "1  Hello  WORLD  ",
 			expected: []string{"1", "hello", "world"},
 		}, {
-			input:    "                       1 2                      4Dada 211",
-			expected: []string{"1", "2", "4Dada", "211"},
+			input:    "                       1 2                      4dada 211",
+			expected: []string{"1", "2", "4dada", "211"},
 		},
 	}
 

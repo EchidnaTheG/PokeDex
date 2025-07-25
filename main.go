@@ -91,9 +91,51 @@ func Catch(pokemon string) error {
 
 	return err
 }
+func Inspect(pokemon string) error{
+	PokeDexPointer := &PokeDex
+	var PokemonInPokedex internal.Pokemon
+	validPokemon := false
+	for _, PokemonInPokedex = range *PokeDexPointer{
+		if PokemonInPokedex.Name == pokemon{
+			validPokemon = true
+			break
+		}
+	}
+	if validPokemon{
+		fmt.Printf("Name: %v\n",PokemonInPokedex.Name)
+		fmt.Printf("Height: %v\n",PokemonInPokedex.Height)
+		fmt.Printf("Weight: %v\n",PokemonInPokedex.Weight)
+		fmt.Printf("Stats:\n")
+		for _, stat := range PokemonInPokedex.Stats{
+			fmt.Printf(" -%v: %v\n",stat.Stat.Name, stat.BaseStat)
+		}
+		fmt.Printf("Types:\n")
+		for _, typ := range PokemonInPokedex.Types{
+			fmt.Printf(" - %v\n",typ.Type.Name )
+		}
+		return nil
+	}else{
+		fmt.Printf("you have not caught that pokemon\n")
+	}
+	return nil	
+}
+
+func ShowPokedex(paramToCompleteSignature string) error{
+	_ = paramToCompleteSignature
+	pokedexPointer := &PokeDex
+	fmt.Printf("Your Pokedex:\n")
+	if len(*pokedexPointer) ==0{
+		fmt.Printf("You Have No Pokemon!\n")
+	}
+	for _,pokem := range *pokedexPointer {
+		fmt.Printf(" - %v\n",pokem.Name)
+	}
+	return nil
+}
+
 
 var config = internal.Config{Next: nil, Previous: nil}
-var PokeDex []internal.Pokemon
+var PokeDex []internal.Pokemon   //not using a map here because I want to support duplicate pokemon and add later pertinent features
 //Initializing the SupportedCommands Map
 
 func init() {
@@ -135,6 +177,16 @@ func init() {
 		description: "attempts to catch the argument.",
 		callback:    Catch,
 	}
+	SupportedCommands["inspect"] = CliCommand{
+		name:        "inspect",
+		description: "inspect a catched pokemon",
+		callback:    Inspect,
+	}
+	SupportedCommands["pokedex"] = CliCommand{
+		name:        "pokedex",
+		description: "show all your catched pokemon",
+		callback:    ShowPokedex,
+	}
 }
 
 // Helper function for capturing user input
@@ -160,24 +212,15 @@ func main() {
 				continue
 			}
 			switch firstValue {
-			case "explore":
-				if len(userInputs) <= 1 {
-					fmt.Println("Not Enough Flags Given")
-					continue
-				}
-				err := SupportedCommands[firstValue].callback(userInputs[1])
-				if err != nil {
-					fmt.Printf("Error!: %v\n", err)
-				}
-			case "catch":
-				if len(userInputs) <= 1 {
-					fmt.Println("Not Enough Flags Given")
-					continue
-				}
-				err := SupportedCommands[firstValue].callback(userInputs[1])
-				if err != nil {
-					fmt.Printf("Error!: %v\n", err)
-				}
+			  case "explore", "catch", "inspect":
+                if len(userInputs) <= 1 {
+                    fmt.Println("Not Enough Flags Given")
+                    continue
+                }
+                err := SupportedCommands[firstValue].callback(userInputs[1])
+                if err != nil {
+                    fmt.Printf("Error!: %v\n", err)
+                }
 			default:
 				err := SupportedCommands[userInputs[0]].callback("")
 				if err != nil {
