@@ -6,7 +6,7 @@ import (
 )
 
 // Interval of Time before cache reaping
-const INTERVAL time.Duration = 5 * time.Second
+const INTERVAL time.Duration = 9 * time.Second
 
 // Cache Struct that holds mutex and the cache map
 type Cache struct {
